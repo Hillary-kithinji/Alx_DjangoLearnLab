@@ -1,15 +1,5 @@
-
----
-
-#### `retrieve.md`
-
-```markdown
-# Retrieve Operation
-
-```python
-from bookshelf.models import Book
-
-# Retrieve all books
-books = Book.objects.all()
-books
-# <QuerySet [<Book: Book object (1)>]>
+# Retrieve the book you just created
+book = Book.objects.get(title="1984")
+book.title     # Output: "1984"
+book.author    # Output: "George Orwell"
+book.publication_year  # Output: 1949
