@@ -1,46 +1,21 @@
 
-
 ---
 
-
-
-\### \*\*3️⃣ update.md\*\*
-
-
+#### `update.md`
 
 ```markdown
-
-\# Update the Book title
-
-
+# Update Operation
 
 ```python
-
 from bookshelf.models import Book
 
-
-
-\# Retrieve the book
-
+# Get the book instance
 book = Book.objects.get(title="1984")
 
-
-
-\# Update title
-
+# Update the title
 book.title = "Nineteen Eighty-Four"
-
 book.save()
 
-
-
-\# Verify update
-
-Book.objects.all()
-
-
-
-\# <QuerySet \[<Book: Nineteen Eighty-Four>]>
-
-
-
+# Confirm update
+book.title
+# 'Nineteen Eighty-Four'

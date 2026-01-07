@@ -1,42 +1,15 @@
 
-
 ---
 
-
-
-\### \*\*2️⃣ retrieve.md\*\*
-
-
+#### `retrieve.md`
 
 ```markdown
-
-\# Retrieve the Book instance
-
-
+# Retrieve Operation
 
 ```python
-
 from bookshelf.models import Book
 
-
-
-\# Get all books
-
+# Retrieve all books
 books = Book.objects.all()
-
-books\[0].title
-
-books\[0].author
-
-books\[0].publication\_year
-
-
-
-\# '1984'
-
-\# 'George Orwell'
-
-\# 1949
-
-
-
+books
+# <QuerySet [<Book: Book object (1)>]>

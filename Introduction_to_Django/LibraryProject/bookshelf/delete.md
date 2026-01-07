@@ -1,44 +1,20 @@
 
-
 ---
 
-
-
-\### \*\*4️⃣ delete.md\*\*
-
-
+#### `delete.md`
 
 ```markdown
-
-\# Delete the Book instance
-
-
+# Delete Operation
 
 ```python
-
 from bookshelf.models import Book
 
-
-
-\# Retrieve the book
-
+# Get the book instance
 book = Book.objects.get(title="Nineteen Eighty-Four")
 
-
-
-\# Delete the book
-
+# Delete it
 book.delete()
 
-
-
-\# Verify deletion
-
+# Confirm deletion
 Book.objects.all()
-
-
-
-\# <QuerySet \[]>
-
-
-
+# <QuerySet []>
