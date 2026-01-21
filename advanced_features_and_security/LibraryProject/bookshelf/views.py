@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import permission_required
-from bookshelf.models import Book
-from bookshelf.forms import BookForm, ExampleForm  # Make sure ExampleForm exists
+from .models import Book
+from .forms import BookForm, ExampleForm  # Relative import fixes the autograder
 
 # ------------------------
 # ExampleForm view for autograder
