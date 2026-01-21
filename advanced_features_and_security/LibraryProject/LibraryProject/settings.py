@@ -67,6 +67,9 @@ X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
 
 SECURE_SSL_REDIRECT = True
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
 # HTTP Strict Transport Security
 SECURE_HSTS_SECONDS = 31536000               # 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True        # include all subdomains
