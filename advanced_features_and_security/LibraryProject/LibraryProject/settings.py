@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-0x-2o3+$&-)rd30fgp&4!d5d(m-tg3!+09^mux55ujono7)&zf'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False 
 
 ALLOWED_HOSTS = []
 
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'relationship_app',
-    'users',
+    'bookshelf', 
 ]
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
 
@@ -54,6 +54,24 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Browser security protections
+SECURE_BROWSER_XSS_FILTER = True  # XSS protection
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing
+X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
+
+
+# Cookies over HTTPS only
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Optional: Use HTTPS redirect (if deployed over HTTPS)
+SECURE_SSL_REDIRECT = True
+
+# Optional: HSTS settings
+SECURE_HSTS_SECONDS = 3600  # Adjust as needed
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
 ROOT_URLCONF = 'LibraryProject.urls'
 
