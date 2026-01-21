@@ -61,17 +61,25 @@ SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing
 X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
 
 
-# Cookies over HTTPS only
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
 
-# Optional: Use HTTPS redirect (if deployed over HTTPS)
+# HTTPS & Security Settings
+# ------------------------
+
 SECURE_SSL_REDIRECT = True
 
-# Optional: HSTS settings
-SECURE_HSTS_SECONDS = 3600  # Adjust as needed
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
+# HTTP Strict Transport Security
+SECURE_HSTS_SECONDS = 31536000               # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True        # include all subdomains
+SECURE_HSTS_PRELOAD = True                   # allow browser preload
+
+# Secure cookies
+SESSION_COOKIE_SECURE = True                 # only send session cookies over HTTPS
+CSRF_COOKIE_SECURE = True                    # only send CSRF cookies over HTTPS
+
+# Secure headers
+X_FRAME_OPTIONS = 'DENY'                     # prevent clickjacking
+SECURE_CONTENT_TYPE_NOSNIFF = True           # prevent MIME sniffing
+SECURE_BROWSER_XSS_FILTER = True             # enable XSS filter in browser
 
 ROOT_URLCONF = 'LibraryProject.urls'
 
