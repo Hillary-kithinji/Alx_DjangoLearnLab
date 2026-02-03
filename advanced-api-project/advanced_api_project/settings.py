@@ -42,6 +42,8 @@ INSTALLED_APPS = [
 
     # Local apps
     'api',
+    # ... other apps
+    'django_filters',
 
 ]
 
