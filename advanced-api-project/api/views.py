@@ -1,110 +1,96 @@
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APITestCase
-from django.contrib.auth.models import User
-from .models import Author, Book
+from rest_framework import generics, filters
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from .models import Book
+from .serializers import BookSerializer
 
 
-class BookAPITestCase(APITestCase):
-    def setUp(self):
-        # Create test user
-        self.user = User.objects.create_user(username="testuser", password="password123")
-        
-        # Create authors
-        self.author1 = Author.objects.create(name="Author One")
-        self.author2 = Author.objects.create(name="Author Two")
-        
-        # Create books
-        self.book1 = Book.objects.create(title="Book One", publication_year=2020, author=self.author1)
-        self.book2 = Book.objects.create(title="Book Two", publication_year=2021, author=self.author2)
+class BookListView(generics.ListAPIView):
+    """
+    Retrieves a list of all Book instances with filtering, searching, and ordering.
 
-    def test_book_list(self):
-        """
-        Test retrieving list of books (public endpoint)
-        """
-        url = reverse("book-list")
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+    Features:
+    - Filter by 'title', 'author', 'publication_year'
+    - Search by 'title' and 'author__name'
+    - Order by any field, e.g., 'title', 'publication_year'
 
-    def test_book_detail(self):
-        """
-        Test retrieving a single book by ID
-        """
-        url = reverse("book-detail", kwargs={"pk": self.book1.id})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["title"], self.book1.title)
+    Access:
+    - Public (read-only)
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def test_create_book_authenticated(self):
-        """
-        Test creating a book as an authenticated user
-        """
-        self.client.login(username="testuser", password="password123")
-        url = reverse("book-create")
-        data = {"title": "New Book", "publication_year": 2022, "author": self.author1.id}
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Book.objects.count(), 3)
-        self.assertEqual(Book.objects.last().title, "New Book")
+    # Enable filtering, searching, and ordering
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
 
-    def test_create_book_unauthenticated(self):
-        """
-        Test creating a book as an unauthenticated user
-        """
-        url = reverse("book-create")
-        data = {"title": "New Book", "publication_year": 2022, "author": self.author1.id}
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    # Filtering fields (exact matches)
+    filterset_fields = ['title', 'author', 'publication_year']
 
-    def test_update_book_authenticated(self):
-        """
-        Test updating a book as an authenticated user
-        """
-        self.client.login(username="testuser", password="password123")
-        url = reverse("book-update")
-        data = {"id": self.book1.id, "title": "Updated Book"}
-        response = self.client.put(url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.book1.refresh_from_db()
-        self.assertEqual(self.book1.title, "Updated Book")
+    # Search fields (partial match)
+    search_fields = ['title', 'author__name']
 
-    def test_delete_book_authenticated(self):
-        """
-        Test deleting a book as an authenticated user
-        """
-        self.client.login(username="testuser", password="password123")
-        url = reverse("book-delete")
-        data = {"id": self.book2.id}
-        response = self.client.delete(url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Book.objects.count(), 1)
+    # Ordering fields
+    ordering_fields = ['title', 'publication_year', 'author']
+    ordering = ['title']  # default ordering
 
-    def test_filtering_books(self):
-        """
-        Test filtering books by title
-        """
-        url = reverse("book-list") + "?title=Book One"
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["title"], "Book One")
 
-    def test_search_books(self):
-        """
-        Test searching books by author name
-        """
-        url = reverse("book-list") + "?search=Author Two"
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["author"], self.author2.id)
+class BookDetailView(generics.RetrieveAPIView):
+    """
+    Retrieves a single Book instance by ID.
 
-    def test_ordering_books(self):
-        """
-        Test ordering books by publication year descending
-        """
-        url = reverse("book-list") + "?ordering=-publication_year"
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data[0]["publication_year"], 2021)
+    Access:
+    - Public (read-only)
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+
+class BookCreateView(generics.CreateAPIView):
+    """
+    Creates a new Book instance.
+
+    Access:
+    - Authenticated users only
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class BookUpdateView(generics.UpdateAPIView):
+    """
+    Updates an existing Book instance.
+
+    Expects 'id' in request data (JSON body).
+
+    Access:
+    - Authenticated users only
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        book_id = self.request.data.get("id")
+        return get_object_or_404(Book, id=book_id)
+
+
+class BookDeleteView(generics.DestroyAPIView):
+    """
+    Deletes a Book instance.
+
+    Expects 'id' in request data (JSON body).
+
+    Access:
+    - Authenticated users only
+    """
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        book_id = self.request.data.get("id")
+        return get_object_or_404(Book, id=book_id)
