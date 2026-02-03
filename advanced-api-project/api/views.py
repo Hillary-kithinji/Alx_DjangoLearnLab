@@ -1,5 +1,6 @@
-from django.shortcuts import render, get_object_or_404
-from rest_framework import generics, permissions
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from django.shortcuts import get_object_or_404
 from .models import Book
 from .serializers import BookSerializer
 
@@ -13,7 +14,7 @@ class BookListView(generics.ListAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class BookDetailView(generics.RetrieveAPIView):
@@ -25,7 +26,7 @@ class BookDetailView(generics.RetrieveAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class BookCreateView(generics.CreateAPIView):
@@ -33,25 +34,25 @@ class BookCreateView(generics.CreateAPIView):
     Creates a new Book instance.
 
     Access:
-    - Restricted to authenticated users only
+    - Authenticated users only
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
 class BookUpdateView(generics.UpdateAPIView):
     """
     Updates an existing Book instance.
 
-    Expects 'id' in request data (JSON body) to identify the book.
+    Expects 'id' in request data (JSON body).
 
     Access:
-    - Restricted to authenticated users only
+    - Authenticated users only
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         book_id = self.request.data.get("id")
@@ -62,14 +63,14 @@ class BookDeleteView(generics.DestroyAPIView):
     """
     Deletes a Book instance.
 
-    Expects 'id' in request data (JSON body) to identify the book.
+    Expects 'id' in request data (JSON body).
 
     Access:
-    - Restricted to authenticated users only
+    - Authenticated users only
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         book_id = self.request.data.get("id")
