@@ -1,0 +1,11 @@
+{% extends 'blog/base.html' %}
+{% block title %}{{ view.object.title if view.object else "New Post" }}{% endblock %}
+{% block content %}
+<h2>{{ view.object.title if view.object else "New Post" }}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+</form>
+<a href="{% url 'posts' %}">Back to all posts</a>
+{% endblock %}
