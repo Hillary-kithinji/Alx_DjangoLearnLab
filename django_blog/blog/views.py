@@ -1,5 +1,3 @@
-# views.py
-
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render, redirect, get_object_or_404
@@ -8,29 +6,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.urls import reverse, reverse_lazy
+from django.db.models import Q
 
 from .models import Post, Comment
 from .forms import PostForm, RegisterForm, CommentForm
 
-from django.db.models import Q
 from taggit.models import Tag
-
-# Search view
-def search_posts(request):
-    query = request.GET.get('q')
-    results = Post.objects.none()
-    if query:
-        results = Post.objects.filter(
-            Q(title__icontains=query) |
-            Q(content__icontains=query) |
-            Q(tags__name__icontains=query)
-        ).distinct()
-    return render(request, 'blog/search_results.html', {'posts': results, 'query': query})
-
-# View posts by tag
-def posts_by_tag(request, tag_name):
-    posts = Post.objects.filter(tags__name__in=[tag_name])
-    return render(request, 'blog/post_list.html', {'posts': posts, 'tag': tag_name})
 
 # ------------------------
 # Blog Post CRUD Views
@@ -155,3 +136,44 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return reverse('post-detail', kwargs={'pk': self.object.post.pk})
+
+# ------------------------
+# Tagging Views
+# ------------------------
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')
+        return Post.objects.filter(tags__slug=tag_slug)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag_slug'] = self.kwargs.get('tag_slug')
+        return context
+
+# ------------------------
+# Search View
+# ------------------------
+class PostSearchListView(ListView):
+    model = Post
+    template_name = 'blog/search_results.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        qs = Post.objects.none()
+        if query:
+            qs = Post.objects.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query)
+            ).distinct()
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')
+        return context
