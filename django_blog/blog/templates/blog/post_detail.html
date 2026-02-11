@@ -25,3 +25,6 @@
     <li>No comments yet.</li>
   {% endfor %}
 </ul>
+{% for tag in post.tags.all %}
+    <a href="{% url 'posts-by-tag' tag.name %}" class="badge badge-info">{{ tag.name }}</a>
+{% endfor %}

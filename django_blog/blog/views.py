@@ -12,6 +12,26 @@ from django.urls import reverse, reverse_lazy
 from .models import Post, Comment
 from .forms import PostForm, RegisterForm, CommentForm
 
+from django.db.models import Q
+from taggit.models import Tag
+
+# Search view
+def search_posts(request):
+    query = request.GET.get('q')
+    results = Post.objects.none()
+    if query:
+        results = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct()
+    return render(request, 'blog/search_results.html', {'posts': results, 'query': query})
+
+# View posts by tag
+def posts_by_tag(request, tag_name):
+    posts = Post.objects.filter(tags__name__in=[tag_name])
+    return render(request, 'blog/post_list.html', {'posts': posts, 'tag': tag_name})
+
 # ------------------------
 # Blog Post CRUD Views
 # ------------------------
