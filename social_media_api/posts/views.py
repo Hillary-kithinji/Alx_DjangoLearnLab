@@ -45,7 +45,7 @@ def like_post(request, pk):
     Like a post. Prevents duplicate likes and creates a notification.
     """
     post = get_object_or_404(Post, pk=pk)
-    
+
     like, created = Like.objects.get_or_create(user=request.user, post=post)
     if not created:
         return Response({"message": "You already liked this post"}, status=400)
