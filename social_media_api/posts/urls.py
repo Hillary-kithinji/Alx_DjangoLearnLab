@@ -10,5 +10,5 @@ urlpatterns = [
     path('feed/', feed, name='feed'),
     path('posts/<int:pk>/like/', like_post, name='like-post'),
     path('posts/<int:pk>/unlike/', unlike_post, name='unlike-post'),
-    path('', include(router.urls)),  # include router URLs properly
+    path('', include(router.urls)),
 ]
