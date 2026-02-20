@@ -3,10 +3,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
-from .models import Post, Comment, Like
+from .models import Post, Comment, Like, Notification
 from .serializers import PostSerializer, CommentSerializer, LikeSerializer
 from .permissions import IsOwnerOrReadOnly
+
 
 # -----------------------
 # Pagination
@@ -38,36 +40,41 @@ def feed(request):
 # -----------------------
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def like_post(request, post_id):
+def like_post(request, pk):
     """
-    Like a post. Prevents duplicate likes.
+    Like a post. Prevents duplicate likes and creates a notification.
     """
-    try:
-        post = Post.objects.get(id=post_id)
-    except Post.DoesNotExist:
-        return Response({"error": "Post not found"}, status=404)
-
+    post = get_object_or_404(Post, pk=pk)
+    
     like, created = Like.objects.get_or_create(user=request.user, post=post)
     if not created:
-        return Response({"message": "You already liked this post"})
-    return Response({"message": "Post liked successfully"})
+        return Response({"message": "You already liked this post"}, status=400)
+
+    # Create notification for the post author
+    if post.author != request.user:
+        Notification.objects.create(
+            user=post.author,
+            sender=request.user,
+            action='like',
+            target=post
+        )
+
+    return Response({"message": "Post liked successfully"}, status=201)
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def unlike_post(request, post_id):
+def unlike_post(request, pk):
     """
     Unlike a post if the user has previously liked it.
     """
-    try:
-        post = Post.objects.get(id=post_id)
-    except Post.DoesNotExist:
-        return Response({"error": "Post not found"}, status=404)
+    post = get_object_or_404(Post, pk=pk)
 
     deleted, _ = Like.objects.filter(user=request.user, post=post).delete()
     if deleted == 0:
         return Response({"error": "Like not found"}, status=404)
-    return Response({"message": "Post unliked successfully"})
+
+    return Response({"message": "Post unliked successfully"}, status=200)
 
 
 # -----------------------
