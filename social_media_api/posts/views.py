@@ -1,7 +1,5 @@
-from rest_framework import viewsets, filters
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets, filters, permissions
 from rest_framework.pagination import PageNumberPagination
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
@@ -10,14 +8,14 @@ from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly
 
 
-# Pagination class must be defined first
+# Pagination class
 class PostPagination(PageNumberPagination):
     page_size = 5
 
 
-# Feed view for posts from users the current user follows
+# Feed view
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated])
 def feed(request):
     following_users = request.user.following.all()
     posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
@@ -32,7 +30,7 @@ def feed(request):
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     pagination_class = PostPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'content']
@@ -44,7 +42,7 @@ class PostViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all().order_by('-created_at')
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     pagination_class = PostPagination
 
     def perform_create(self, serializer):
