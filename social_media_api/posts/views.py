@@ -11,8 +11,8 @@ from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def user_feed(request):
+@permission_classes([permissions.IsAuthenticated])
+def feed(request):
     followed_users = request.user.following.all()
     posts = Post.objects.filter(author__in=followed_users).order_by('-created_at')
 
