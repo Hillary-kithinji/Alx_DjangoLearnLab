@@ -4,12 +4,18 @@ from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly
-from .views import PostPagination
 
+
+# Pagination class must be defined first
+class PostPagination(PageNumberPagination):
+    page_size = 5
+
+
+# Feed view for posts from users the current user follows
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def feed(request):
@@ -21,9 +27,6 @@ def feed(request):
     serializer = PostSerializer(paginated_posts, many=True)
 
     return paginator.get_paginated_response(serializer.data)
-
-class PostPagination(PageNumberPagination):
-    page_size = 5
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -46,7 +49,3 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-        
-
-        

@@ -1,10 +1,10 @@
-from rest_framework import generics, status, permissions
+from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
 from rest_framework.decorators import api_view, permission_classes
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
 
 CustomUser = get_user_model()
 
@@ -47,10 +47,10 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def followuser(request, user_id):
-    users = CustomUser.objects.all()
+    all_users = CustomUser.objects.all()
 
     try:
-        user_to_follow = users.get(id=user_id)
+        user_to_follow = all_users.get(id=user_id)
     except CustomUser.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
 
@@ -64,10 +64,10 @@ def followuser(request, user_id):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def unfollowuser(request, user_id):
-    users = CustomUser.objects.all()
+    all_users = CustomUser.objects.all()
 
     try:
-        user_to_unfollow = users.get(id=user_id)
+        user_to_unfollow = all_users.get(id=user_id)
     except CustomUser.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
 
